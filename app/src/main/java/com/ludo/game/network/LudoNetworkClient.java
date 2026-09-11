@@ -8,6 +8,8 @@ import java.util.UUID;
 
 public class LudoNetworkClient implements ConnectionManager.NetworkStateListener {
     private static final String TAG = "LudoNetworkClient";
+    public static final String DEFAULT_DEV_SERVER_URL = "ws://192.168.29.16:3000";
+
     private static LudoNetworkClient instance;
 
     private final ConnectionManager connectionManager;
@@ -40,10 +42,15 @@ public class LudoNetworkClient implements ConnectionManager.NetworkStateListener
         this.syncManager.setRenderer(renderer);
     }
 
+    public void connectAndJoinMatchmaking(String playerName) {
+        connectAndJoinMatchmaking(DEFAULT_DEV_SERVER_URL, playerName);
+    }
+
     public void connectAndJoinMatchmaking(String serverUrl, String playerName) {
         this.playerName = playerName;
-        this.reconnectionManager.configureSession(serverUrl, matchId, playerId);
-        this.connectionManager.connect(serverUrl);
+        String targetUrl = (serverUrl != null && !serverUrl.isEmpty()) ? serverUrl : DEFAULT_DEV_SERVER_URL;
+        this.reconnectionManager.configureSession(targetUrl, matchId, playerId);
+        this.connectionManager.connect(targetUrl);
     }
 
     public void requestRollDice() {

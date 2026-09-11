@@ -8,6 +8,7 @@
     "test": "node test_client.js"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.116.0",
     "ws": "^8.13.0"
   }
 }

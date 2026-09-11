@@ -4,6 +4,7 @@
  */
 
 const MatchManager = require('./MatchManager');
+const db = require('./DatabaseService');
 
 class WebSocketGateway {
   constructor(wss) {
@@ -40,7 +41,7 @@ class WebSocketGateway {
     }, 10000);
   }
 
-  handleClientMessage(ws, data) {
+  async handleClientMessage(ws, data) {
     const { type, playerId, actionId, payload } = data;
 
     if (type === 'PING') {
@@ -55,6 +56,11 @@ class WebSocketGateway {
     if (type === 'JOIN_MATCHMAKING') {
       ws.playerId = playerId;
       ws.playerName = payload?.name || `Player_${playerId.substring(0, 4)}`;
+
+      // Fetch or persist profile in Supabase asynchronously
+      db.getOrCreateProfile(playerId, ws.playerName).then(profile => {
+        ws.profile = profile;
+      });
 
       const matchData = this.matchManager.enqueuePlayer(playerId, ws.playerName, ws);
       if (matchData) {
@@ -158,6 +164,9 @@ class WebSocketGateway {
           matchId: engine.matchId
         });
         this.broadcast(matchData, gameFinishedEvent);
+
+        // Record match results in Supabase
+        db.recordMatchFinished(engine.matchId, playerId, 120);
         return;
       }
 
