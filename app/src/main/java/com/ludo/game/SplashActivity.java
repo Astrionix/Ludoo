@@ -26,18 +26,11 @@ public class SplashActivity extends AppCompatActivity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                findViewById(R.id.background).setBackground(ResourcesCompat.getDrawable(getResources(),R.drawable.intro2,null));
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent i = new Intent(SplashActivity.this,HomeActivity.class);
-                        startActivity(i);
-                        finish();
-                    }
-                },(long)Math.floor(Math.random()*2000)+2500);
+                Intent i = new Intent(SplashActivity.this, HomeActivity.class);
+                startActivity(i);
+                finish();
             }
-        },(long)Math.floor(Math.random()*1500)+1500);
-
+        }, 2000);
     }
 
     void setFullScreen() {

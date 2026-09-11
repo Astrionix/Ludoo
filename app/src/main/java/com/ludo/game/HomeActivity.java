@@ -368,10 +368,27 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
+        View.OnClickListener openPassNPlayListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                giveClickSound();
+                passnplaylayout.setScaleX(0.0f);
+                passnplaylayout.setScaleY(0.0f);
+                passnplaylayout.setVisibility(View.VISIBLE);
+                passnplaylayout.animate().scaleX(1.0f).scaleY(1.0f).setInterpolator(new OvershootInterpolator()).setDuration(200).setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        passnplaylayout.animate().setListener(null);
+                    }
+                }).start();
+            }
+        };
+
         playonline.setOnTouchListener(clickBounceEffect);
         playonline.setOnClickListener(noInternetOnClick);
         playwithfriends.setOnTouchListener(clickBounceEffect);
-        playwithfriends.setOnClickListener(noInternetOnClick);
+        playwithfriends.setOnClickListener(openPassNPlayListener);
         computer.setOnTouchListener(clickBounceEffect);
         computer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -389,22 +406,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
         passnplay.setOnTouchListener(clickBounceEffect);
-        passnplay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                giveClickSound();
-                passnplaylayout.setScaleX(0.0f);
-                passnplaylayout.setScaleY(0.0f);
-                passnplaylayout.setVisibility(View.VISIBLE);
-                passnplaylayout.animate().scaleX(1.0f).scaleY(1.0f).setInterpolator(new OvershootInterpolator()).setDuration(200).setListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        passnplaylayout.animate().setListener(null);
-                    }
-                }).start();
-            }
-        });
+        passnplay.setOnClickListener(openPassNPlayListener);
 
 
 
