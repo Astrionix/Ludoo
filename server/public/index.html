@@ -211,11 +211,23 @@
         log('CONNECTED to server!');
 
         const pName = document.getElementById('playerName').value;
-        ws.send(JSON.stringify({
-          type: 'JOIN_MATCHMAKING',
-          playerId: playerId,
-          payload: { name: pName }
-        }));
+        if (matchId && lastSeq > 0) {
+          log(`Requesting RECONNECT for match ${matchId} with lastSeq #${lastSeq}...`);
+          ws.send(JSON.stringify({
+            type: 'RECONNECT_REQUEST',
+            playerId: playerId,
+            payload: {
+              matchId: matchId,
+              lastReceivedSequence: lastSeq
+            }
+          }));
+        } else {
+          ws.send(JSON.stringify({
+            type: 'JOIN_MATCHMAKING',
+            playerId: playerId,
+            payload: { name: pName }
+          }));
+        }
       };
 
       ws.onmessage = (evt) => {
