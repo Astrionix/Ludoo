@@ -1,25 +1,36 @@
 /**
  * DatabaseService.js
  * Integrated Supabase client service for authoritative persistence of player profiles, coins, stats, and match history.
+ * Environment variables SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are loaded from .env
  */
 
+require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://jyvwfvhhgsjxdcasztir.supabase.co';
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5dndmdmhoZ3NqeGRjYXN6dGlyIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4OTA2MjkyOCwiZXhwIjoyMTA0NjM4OTI4fQ.O5Hx_b_kd_0mXpukTc6c6_p-jMxks3pLSkOg4onp-ns';
+const SUPABASE_URL = process.env.SUPABASE_URL || '';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 class DatabaseService {
   constructor() {
-    this.supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
-      auth: { persistSession: false }
-    });
-    console.log(`[Supabase] Initialized database client for ${SUPABASE_URL}`);
+    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      this.supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
+        auth: { persistSession: false }
+      });
+      console.log(`[Supabase] Initialized database client for ${SUPABASE_URL}`);
+    } else {
+      console.warn('[Supabase Warning] SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing. Database persistence disabled.');
+      this.supabase = null;
+    }
   }
 
   /**
    * Fetches or initializes a player profile in Supabase database.
    */
   async getOrCreateProfile(playerId, playerName) {
+    if (!this.supabase) {
+      return { id: playerId, username: playerName, coins: 1000, diamonds: 50 };
+    }
+
     try {
       const { data, error } = await this.supabase
         .from('profiles')
@@ -61,6 +72,8 @@ class DatabaseService {
    * Records match outcome and updates winner's coins and stats.
    */
   async recordMatchFinished(matchId, winnerId, durationSeconds) {
+    if (!this.supabase) return;
+
     try {
       // 1. Insert match record
       await this.supabase.from('matches').insert([{
