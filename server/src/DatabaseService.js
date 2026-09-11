@@ -24,6 +24,92 @@ class DatabaseService {
   }
 
   /**
+   * Registers a new user with Email + Password and creates player profile.
+   */
+  async signupUser(name, email, password) {
+    if (!this.supabase) {
+      return { success: false, error: 'Database uninitialized' };
+    }
+
+    try {
+      const { data, error } = await this.supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: { data: { name: name } }
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data && data.user) {
+        const profile = {
+          id: data.user.id,
+          username: name || email.split('@')[0],
+          coins: 1000,
+          diamonds: 50,
+          total_matches: 0,
+          wins: 0
+        };
+
+        await this.supabase.from('profiles').upsert([profile]);
+
+        return {
+          success: true,
+          user: data.user,
+          profile: profile,
+          message: 'Signup successful!'
+        };
+      }
+
+      return { success: false, error: 'Failed to create user' };
+    } catch (err) {
+      console.error('[Supabase Exception] signupUser:', err.message);
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
+   * Authenticates user with Email + Password.
+   */
+  async loginUser(email, password) {
+    if (!this.supabase) {
+      return { success: false, error: 'Database uninitialized' };
+    }
+
+    try {
+      const { data, error } = await this.supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data && data.user) {
+        const { data: profile } = await this.supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+
+        return {
+          success: true,
+          user: data.user,
+          profile: profile || { id: data.user.id, username: email.split('@')[0], coins: 1000, diamonds: 50 },
+          message: 'Login successful!'
+        };
+      }
+
+      return { success: false, error: 'Invalid login credentials' };
+    } catch (err) {
+      console.error('[Supabase Exception] loginUser:', err.message);
+      return { success: false, error: err.message };
+    }
+  }
+
+  /**
    * Fetches or initializes a player profile in Supabase database.
    */
   async getOrCreateProfile(playerId, playerName) {
