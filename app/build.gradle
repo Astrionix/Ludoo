@@ -4,12 +4,12 @@ plugins {
 
 android {
     namespace 'com.ludo.game'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.ludo.game"
         minSdk 21
-        targetSdk 33
+        targetSdk 34
         versionCode 1562
         versionName "8.0.0.278"
 
