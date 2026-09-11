@@ -1,0 +1,13 @@
+{
+  "name": "ludo-realtime-server",
+  "version": "1.0.0",
+  "description": "Server-authoritative low-bandwidth real-time multiplayer engine for Ludo",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test_client.js"
+  },
+  "dependencies": {
+    "ws": "^8.13.0"
+  }
+}
