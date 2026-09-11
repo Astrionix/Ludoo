@@ -44,12 +44,12 @@ public class LudoNetworkClient implements ConnectionManager.NetworkStateListener
     }
 
     public void connectAndJoinMatchmaking(String playerName) {
-        connectAndJoinMatchmaking(DEFAULT_DEV_SERVER_URL, playerName);
+        connectAndJoinMatchmaking(PRODUCTION_SERVER_URL, playerName);
     }
 
     public void connectAndJoinMatchmaking(String serverUrl, String playerName) {
         this.playerName = playerName;
-        String targetUrl = (serverUrl != null && !serverUrl.isEmpty()) ? serverUrl : DEFAULT_DEV_SERVER_URL;
+        String targetUrl = (serverUrl != null && !serverUrl.isEmpty()) ? serverUrl : PRODUCTION_SERVER_URL;
         this.reconnectionManager.configureSession(targetUrl, matchId, playerId);
         this.connectionManager.connect(targetUrl);
     }

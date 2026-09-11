@@ -30,6 +30,8 @@ import android.view.animation.AnticipateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Toast;
 import com.ludo.game.network.AuthDialogManager;
+import com.ludo.game.network.LudoNetworkClient;
+import com.ludo.game.network.LocalGameRenderer;
 import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -385,8 +387,94 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
+        View.OnClickListener openOnlineMatchmakingListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                giveClickSound();
+                SharedPreferences authSp = getSharedPreferences("LudoUserAuth", MODE_PRIVATE);
+                String currentUsername = authSp.getString("username", playerNameBtnComTextView.getText().toString());
+
+                android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(HomeActivity.this);
+                android.widget.LinearLayout dialogLayout = new android.widget.LinearLayout(HomeActivity.this);
+                dialogLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
+                dialogLayout.setPadding(60, 50, 60, 50);
+                dialogLayout.setBackgroundColor(0xFF1E2436);
+
+                TextView titleTv = new TextView(HomeActivity.this);
+                titleTv.setText("SEARCHING ONLINE MATCH");
+                titleTv.setTextSize(20);
+                titleTv.setTypeface(null, android.graphics.Typeface.BOLD);
+                titleTv.setTextColor(0xFFF5C84B);
+                titleTv.setGravity(android.view.Gravity.CENTER);
+                dialogLayout.addView(titleTv);
+
+                TextView statusTv = new TextView(HomeActivity.this);
+                statusTv.setText("Connecting to Booo Live Server...\nSearching players across regions...");
+                statusTv.setTextSize(14);
+                statusTv.setTextColor(0xFFD0D8E8);
+                statusTv.setGravity(android.view.Gravity.CENTER);
+                statusTv.setPadding(0, 30, 0, 30);
+                dialogLayout.addView(statusTv);
+
+                android.widget.Button cancelBtn = new android.widget.Button(HomeActivity.this);
+                cancelBtn.setText("CANCEL");
+                cancelBtn.setBackgroundColor(0xFFFF5252);
+                cancelBtn.setTextColor(0xFFFFFFFF);
+                dialogLayout.addView(cancelBtn);
+
+                builder.setView(dialogLayout);
+                android.app.AlertDialog matchDialog = builder.create();
+                matchDialog.show();
+
+                cancelBtn.setOnClickListener(v -> matchDialog.dismiss());
+
+                LudoNetworkClient netClient = LudoNetworkClient.getInstance();
+                netClient.setRenderer(new LocalGameRenderer() {
+                    @Override
+                    public void onGameStarted(String matchId, org.json.JSONArray players) {
+                        runOnUiThread(() -> {
+                            matchDialog.dismiss();
+                            Toast.makeText(HomeActivity.this, "🎮 Match Found! Starting game...", Toast.LENGTH_SHORT).show();
+                            Intent i = new Intent(HomeActivity.this, MainActivity.class);
+                            i.putExtra("type", "CLASSIC");
+                            i.putExtra("nop", 4);
+                            i.putExtra("color", "red");
+                            i.putExtra("online", true);
+                            i.putExtra("matchId", matchId);
+                            startActivity(i);
+                            overridePendingTransition(0, 0);
+                        });
+                    }
+
+                    @Override
+                    public void onDiceRolled(String playerId, String color, int diceValue, boolean hasValidMove) {}
+                    @Override
+                    public void onMoveConfirmed(String playerId, String color, int tokenIndex, int oldPos, int newPos, boolean isTokenHome) {}
+                    @Override
+                    public void onTokenCaptured(String victimPlayerId, String victimColor, int tokenIndex) {}
+                    @Override
+                    public void onTurnChanged(int turnIndex, String playerId, String color, long turnDeadline) {}
+                    @Override
+                    public void onGameStateSnapshot(org.json.JSONObject snapshotData) {}
+                    @Override
+                    public void onPlayerFinished(String playerId, int rank) {}
+                    @Override
+                    public void onGameFinished(String winnerId) {}
+
+                    @Override
+                    public void onConnectionStatusUpdated(com.ludo.game.network.NetworkState.ConnectionState state, com.ludo.game.network.NetworkState.ConnectionQuality quality) {
+                        runOnUiThread(() -> {
+                            statusTv.setText("Server Status: " + state + " (" + quality + ")\nSearching opponents across regions...");
+                        });
+                    }
+                });
+
+                netClient.connectAndJoinMatchmaking(LudoNetworkClient.PRODUCTION_SERVER_URL, currentUsername);
+            }
+        };
+
         playonline.setOnTouchListener(clickBounceEffect);
-        playonline.setOnClickListener(noInternetOnClick);
+        playonline.setOnClickListener(openOnlineMatchmakingListener);
         playwithfriends.setOnTouchListener(clickBounceEffect);
         playwithfriends.setOnClickListener(openPassNPlayListener);
         computer.setOnTouchListener(clickBounceEffect);
