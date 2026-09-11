@@ -199,7 +199,8 @@
     }
 
     function connect() {
-      const wsUrl = `ws://${window.location.hostname || 'localhost'}:${window.location.port || '3000'}`;
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}`;
       log(`Connecting to ${wsUrl}...`);
 
       ws = new WebSocket(wsUrl);

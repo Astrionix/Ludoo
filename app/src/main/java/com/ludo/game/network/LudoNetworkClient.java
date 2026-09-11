@@ -9,6 +9,7 @@ import java.util.UUID;
 public class LudoNetworkClient implements ConnectionManager.NetworkStateListener {
     private static final String TAG = "LudoNetworkClient";
     public static final String DEFAULT_DEV_SERVER_URL = "ws://192.168.29.16:3000";
+    public static final String PRODUCTION_SERVER_URL = "wss://ludoo-d085.onrender.com";
 
     private static LudoNetworkClient instance;
 
