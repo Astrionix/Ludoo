@@ -12,5 +12,6 @@ public interface LocalGameRenderer {
     void onGameStateSnapshot(JSONObject snapshotData);
     void onPlayerFinished(String playerId, int rank);
     void onGameFinished(String winnerId);
+    void onRoomUpdated(JSONObject roomData);
     void onConnectionStatusUpdated(NetworkState.ConnectionState state, NetworkState.ConnectionQuality quality);
 }

@@ -26,6 +26,13 @@ public class SyncManager {
             JSONObject obj = new JSONObject(jsonText);
             String type = obj.optString("type");
 
+            if ("ROOM_UPDATED".equals(type) || "ROOM_CREATED".equals(type)) {
+                if (renderer != null) {
+                    renderer.onRoomUpdated(obj);
+                }
+                return;
+            }
+
             if ("DELTA_SYNC".equals(type)) {
                 JSONArray events = obj.optJSONArray("events");
                 if (events != null) {

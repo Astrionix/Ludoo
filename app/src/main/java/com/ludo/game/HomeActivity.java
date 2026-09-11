@@ -460,6 +460,8 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                     public void onPlayerFinished(String playerId, int rank) {}
                     @Override
                     public void onGameFinished(String winnerId) {}
+                    @Override
+                    public void onRoomUpdated(org.json.JSONObject roomData) {}
 
                     @Override
                     public void onConnectionStatusUpdated(com.ludo.game.network.NetworkState.ConnectionState state, com.ludo.game.network.NetworkState.ConnectionQuality quality) {
@@ -476,7 +478,12 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         playonline.setOnTouchListener(clickBounceEffect);
         playonline.setOnClickListener(openOnlineMatchmakingListener);
         playwithfriends.setOnTouchListener(clickBounceEffect);
-        playwithfriends.setOnClickListener(openPassNPlayListener);
+        playwithfriends.setOnClickListener(btnView -> {
+            giveClickSound();
+            SharedPreferences authSp = getSharedPreferences("LudoUserAuth", MODE_PRIVATE);
+            String currentUsername = authSp.getString("username", playerNameBtnComTextView.getText().toString());
+            com.ludo.game.network.FriendRoomDialogManager.showPlayWithFriendsDialog(HomeActivity.this, currentUsername);
+        });
         computer.setOnTouchListener(clickBounceEffect);
         computer.setOnClickListener(new View.OnClickListener() {
             @Override

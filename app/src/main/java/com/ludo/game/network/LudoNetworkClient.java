@@ -54,6 +54,72 @@ public class LudoNetworkClient implements ConnectionManager.NetworkStateListener
         this.connectionManager.connect(targetUrl);
     }
 
+    public void createRoom(String serverUrl, String playerName, JSONObject options) {
+        this.playerName = playerName;
+        String targetUrl = (serverUrl != null && !serverUrl.isEmpty()) ? serverUrl : PRODUCTION_SERVER_URL;
+        this.connectionManager.connect(targetUrl);
+
+        try {
+            JSONObject req = new JSONObject();
+            req.put("type", "CREATE_ROOM");
+            req.put("playerId", playerId);
+            JSONObject p = new JSONObject();
+            p.put("name", playerName);
+            p.put("options", options != null ? options : new JSONObject());
+            req.put("payload", p);
+            this.connectionManager.send(req.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void joinRoom(String serverUrl, String roomCode, String playerName) {
+        this.playerName = playerName;
+        String targetUrl = (serverUrl != null && !serverUrl.isEmpty()) ? serverUrl : PRODUCTION_SERVER_URL;
+        this.connectionManager.connect(targetUrl);
+
+        try {
+            JSONObject req = new JSONObject();
+            req.put("type", "JOIN_ROOM");
+            req.put("playerId", playerId);
+            JSONObject p = new JSONObject();
+            p.put("name", playerName);
+            p.put("roomCode", roomCode);
+            req.put("payload", p);
+            this.connectionManager.send(req.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void toggleReady(String roomCode) {
+        try {
+            JSONObject req = new JSONObject();
+            req.put("type", "TOGGLE_READY");
+            req.put("playerId", playerId);
+            JSONObject p = new JSONObject();
+            p.put("roomCode", roomCode);
+            req.put("payload", p);
+            this.connectionManager.send(req.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void startRoomMatch(String roomCode) {
+        try {
+            JSONObject req = new JSONObject();
+            req.put("type", "START_ROOM_MATCH");
+            req.put("playerId", playerId);
+            JSONObject p = new JSONObject();
+            p.put("roomCode", roomCode);
+            req.put("payload", p);
+            this.connectionManager.send(req.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void requestRollDice() {
         try {
             JSONObject req = new JSONObject();

@@ -62,12 +62,59 @@ class WebSocketGateway {
         ws.profile = profile;
       });
 
-      const matchData = this.matchManager.enqueuePlayer(playerId, ws.playerName, ws);
+      const matchData = this.matchManager.enqueuePlayer(playerId, ws.playerName, ws, payload?.nop || 4);
       if (matchData) {
         this.startMatchSession(matchData);
       } else {
-        this.send(ws, { type: 'MATCHMAKING_SEARCHING', status: 'Waiting for opponent...' });
+        this.send(ws, { type: 'MATCHMAKING_SEARCHING', status: 'Searching for players...' });
       }
+      return;
+    }
+
+    if (type === 'CREATE_ROOM') {
+      ws.playerId = playerId;
+      ws.playerName = payload?.name || `Player_${playerId.substring(0, 4)}`;
+
+      const room = this.matchManager.createRoom(playerId, ws.playerName, ws, payload?.options || {});
+      this.send(ws, {
+        type: 'ROOM_CREATED',
+        roomCode: room.code,
+        players: room.players.map(p => ({ id: p.id, name: p.name, isHost: p.isHost, isReady: p.isReady })),
+        options: room.options
+      });
+      return;
+    }
+
+    if (type === 'JOIN_ROOM') {
+      ws.playerId = playerId;
+      ws.playerName = payload?.name || `Player_${playerId.substring(0, 4)}`;
+      const { roomCode } = payload || {};
+
+      const result = this.matchManager.joinRoom(roomCode, playerId, ws.playerName, ws);
+      if (result.error) {
+        return this.send(ws, { type: 'JOIN_ROOM_FAILED', error: result.error });
+      }
+
+      this.broadcastRoomUpdate(result.room);
+      return;
+    }
+
+    if (type === 'TOGGLE_READY') {
+      const { roomCode } = payload || {};
+      const room = this.matchManager.toggleReady(roomCode, playerId);
+      if (room) {
+        this.broadcastRoomUpdate(room);
+      }
+      return;
+    }
+
+    if (type === 'START_ROOM_MATCH') {
+      const { roomCode } = payload || {};
+      const result = this.matchManager.startRoomMatch(roomCode, playerId);
+      if (result.error) {
+        return this.send(ws, { type: 'START_ROOM_MATCH_FAILED', error: result.error });
+      }
+      this.startMatchSession(result.matchData);
       return;
     }
 
@@ -243,6 +290,21 @@ class WebSocketGateway {
       const disconnectEvent = matchData.sequenceManager.recordEvent('PLAYER_DISCONNECTED', { playerId: playerId });
       this.broadcast(matchData, disconnectEvent);
     }
+  }
+
+  broadcastRoomUpdate(room) {
+    const payload = JSON.stringify({
+      type: 'ROOM_UPDATED',
+      roomCode: room.code,
+      players: room.players.map(p => ({ id: p.id, name: p.name, isHost: p.isHost, isReady: p.isReady })),
+      options: room.options,
+      started: room.started
+    });
+    room.players.forEach(p => {
+      if (p.ws && p.ws.readyState === 1) {
+        p.ws.send(payload);
+      }
+    });
   }
 
   broadcast(matchData, event) {
