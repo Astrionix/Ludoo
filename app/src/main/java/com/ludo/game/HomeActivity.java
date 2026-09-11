@@ -28,6 +28,8 @@ import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.view.animation.AnticipateInterpolator;
 import android.view.animation.LinearInterpolator;
+import android.widget.Toast;
+import com.ludo.game.network.AuthDialogManager;
 import android.view.animation.OvershootInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -286,6 +288,22 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
 
+        View.OnClickListener openAuthDialogClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                giveClickSound();
+                AuthDialogManager.showAuthDialog(HomeActivity.this, new AuthDialogManager.AuthCallback() {
+                    @Override
+                    public void onSuccess(String username, String email, String userId) {
+                        sharedPreferences.edit().putBoolean("logged", true).putString("name", username).apply();
+                        playerNameBtnComTextView.setText(username);
+                        findViewById(R.id.loginscreen).setVisibility(View.GONE);
+                        findViewById(R.id.guestprofilelayout).setVisibility(View.GONE);
+                    }
+                });
+            }
+        };
+
         View.OnTouchListener clickBounceEffect = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
@@ -497,9 +515,9 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
                 findViewById(R.id.guestprofilelayout).setVisibility(View.VISIBLE);
             }
         });
-        stcslgwfb.setOnClickListener(noInternetOnClick);
-        stcslgwggl.setOnClickListener(noInternetOnClick);
-        stcslgwpg.setOnClickListener(noInternetOnClick);
+        stcslgwfb.setOnClickListener(openAuthDialogClickListener);
+        stcslgwggl.setOnClickListener(openAuthDialogClickListener);
+        stcslgwpg.setOnClickListener(openAuthDialogClickListener);
         stcsfshare.setOnClickListener(noInternetOnClick);
 
 
@@ -561,7 +579,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
         // setting listeners to first login layout views
         lgnwfbbtn.setOnTouchListener(clickEffect);snwgglbtn.setOnTouchListener(clickEffect);snwpgbtn.setOnTouchListener(clickEffect);playasguestbtn.setOnTouchListener(clickEffect);
         lgnwfbbtn.performClick();
-        lgnwfbbtn.setOnClickListener(noInternetOnClick);snwgglbtn.setOnClickListener(noInternetOnClick);snwpgbtn.setOnClickListener(noInternetOnClick);
+        lgnwfbbtn.setOnClickListener(openAuthDialogClickListener);snwgglbtn.setOnClickListener(openAuthDialogClickListener);snwpgbtn.setOnClickListener(openAuthDialogClickListener);
         playasguestbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -575,7 +593,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
 
         guestprofilecreateoreditlayout.setOnClickListener(hideEditTextOnClick);
         pselecturctrybtn.setOnTouchListener(clickEffect);plgnwfbbtn.setOnTouchListener(clickEffect);psnwgglbtn.setOnTouchListener(clickEffect);psnwpgbtn.setOnTouchListener(clickEffect);pcontinuebtn.setOnTouchListener(clickEffect);
-        pselecturctrybtn.setOnClickListener(noInternetOnClick);plgnwfbbtn.setOnClickListener(noInternetOnClick);psnwgglbtn.setOnClickListener(noInternetOnClick);psnwpgbtn.setOnClickListener(noInternetOnClick);
+        pselecturctrybtn.setOnClickListener(noInternetOnClick);plgnwfbbtn.setOnClickListener(openAuthDialogClickListener);psnwgglbtn.setOnClickListener(openAuthDialogClickListener);psnwpgbtn.setOnClickListener(openAuthDialogClickListener);
 
 
 
@@ -2255,6 +2273,7 @@ public class HomeActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     void showNoInternet() {
+        Toast.makeText(HomeActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
         nointernet.setVisibility(View.VISIBLE);
         nointernet.setScaleX(0.0f);nointernet.setScaleY(0.0f);
         nointernethandler.removeCallbacks(nointernetrunnable);

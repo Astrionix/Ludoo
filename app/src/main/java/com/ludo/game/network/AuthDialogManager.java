@@ -36,60 +36,101 @@ public class AuthDialogManager {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 40, 50, 30);
+        layout.setPadding(60, 50, 60, 50);
+        layout.setBackgroundColor(0xFF1E2436); // Sleek dark midnight background
 
         TextView title = new TextView(context);
-        title.setText("LUDO ONLINE ACCOUNT");
-        title.setTextSize(20);
+        title.setText("BOOO LUDO ACCOUNT");
+        title.setTextSize(22);
         title.setTypeface(null, android.graphics.Typeface.BOLD);
-        title.setTextColor(0xFFF5C84B); // Gold
+        title.setTextColor(0xFFF5C84B); // Gold accent
         title.setGravity(android.view.Gravity.CENTER);
         layout.addView(title);
 
+        TextView subtitle = new TextView(context);
+        subtitle.setText("Log in or create a new account with Email");
+        subtitle.setTextSize(13);
+        subtitle.setTextColor(0xFFA0AAB8);
+        subtitle.setGravity(android.view.Gravity.CENTER);
+        subtitle.setPadding(0, 8, 0, 30);
+        layout.addView(subtitle);
+
         LinearLayout tabLayout = new LinearLayout(context);
         tabLayout.setOrientation(LinearLayout.HORIZONTAL);
-        tabLayout.setPadding(0, 20, 0, 20);
+        tabLayout.setPadding(0, 10, 0, 30);
 
         Button tabLogin = new Button(context);
         tabLogin.setText("LOG IN");
+        tabLogin.setBackgroundColor(0xFFE8A928);
+        tabLogin.setTextColor(0xFF000000);
+
         Button tabSignup = new Button(context);
         tabSignup.setText("SIGN UP");
+        tabSignup.setBackgroundColor(0xFF2C354A);
+        tabSignup.setTextColor(0xFFFFFFFF);
 
-        tabLayout.addView(tabLogin, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
-        tabLayout.addView(tabSignup, new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f));
+        LinearLayout.LayoutParams tabParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.0f);
+        tabParams.setMargins(10, 0, 10, 0);
+        tabLayout.addView(tabLogin, tabParams);
+        tabLayout.addView(tabSignup, tabParams);
         layout.addView(tabLayout);
 
         EditText etName = new EditText(context);
         etName.setHint("Full Name");
+        etName.setHintTextColor(0xFF808B9E);
+        etName.setTextColor(0xFFFFFFFF);
+        etName.setPadding(30, 30, 30, 30);
+        etName.setBackgroundColor(0xFF2C354A);
         etName.setVisibility(View.GONE);
+        LinearLayout.LayoutParams fieldParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        fieldParams.setMargins(0, 15, 0, 15);
+        etName.setLayoutParams(fieldParams);
         layout.addView(etName);
 
         EditText etEmail = new EditText(context);
-        etEmail.setHint("Email Address (e.g. player@gmail.com)");
+        etEmail.setHint("Email Address (e.g. user@gmail.com)");
+        etEmail.setHintTextColor(0xFF808B9E);
+        etEmail.setTextColor(0xFFFFFFFF);
+        etEmail.setPadding(30, 30, 30, 30);
+        etEmail.setBackgroundColor(0xFF2C354A);
         etEmail.setInputType(android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        etEmail.setLayoutParams(fieldParams);
         layout.addView(etEmail);
 
         EditText etPassword = new EditText(context);
         etPassword.setHint("Password");
+        etPassword.setHintTextColor(0xFF808B9E);
+        etPassword.setTextColor(0xFFFFFFFF);
+        etPassword.setPadding(30, 30, 30, 30);
+        etPassword.setBackgroundColor(0xFF2C354A);
         etPassword.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        etPassword.setLayoutParams(fieldParams);
         layout.addView(etPassword);
 
         TextView tvStatus = new TextView(context);
-        tvStatus.setPadding(0, 15, 0, 15);
+        tvStatus.setPadding(0, 20, 0, 20);
         tvStatus.setGravity(android.view.Gravity.CENTER);
+        tvStatus.setTextSize(14);
         layout.addView(tvStatus);
 
         Button btnSubmit = new Button(context);
         btnSubmit.setText("LOG IN");
         btnSubmit.setBackgroundColor(0xFFE8A928);
         btnSubmit.setTextColor(0xFF000000);
-        layout.addView(btnSubmit);
+        btnSubmit.setTextSize(16);
+        btnSubmit.setTypeface(null, android.graphics.Typeface.BOLD);
+        btnSubmit.setPadding(0, 25, 0, 25);
+        layout.addView(btnSubmit, fieldParams);
 
         final boolean[] isSignupMode = {false};
 
         tabLogin.setOnClickListener(v -> {
             isSignupMode[0] = false;
             etName.setVisibility(View.GONE);
+            tabLogin.setBackgroundColor(0xFFE8A928);
+            tabLogin.setTextColor(0xFF000000);
+            tabSignup.setBackgroundColor(0xFF2C354A);
+            tabSignup.setTextColor(0xFFFFFFFF);
             btnSubmit.setText("LOG IN");
             tvStatus.setText("");
         });
@@ -97,6 +138,10 @@ public class AuthDialogManager {
         tabSignup.setOnClickListener(v -> {
             isSignupMode[0] = true;
             etName.setVisibility(View.VISIBLE);
+            tabSignup.setBackgroundColor(0xFFE8A928);
+            tabSignup.setTextColor(0xFF000000);
+            tabLogin.setBackgroundColor(0xFF2C354A);
+            tabLogin.setTextColor(0xFFFFFFFF);
             btnSubmit.setText("CREATE ACCOUNT");
             tvStatus.setText("");
         });
@@ -112,7 +157,7 @@ public class AuthDialogManager {
 
             if (email.isEmpty() || password.isEmpty() || (isSignupMode[0] && name.isEmpty())) {
                 tvStatus.setText("Please fill all required fields.");
-                tvStatus.setTextColor(0xFFE3132B);
+                tvStatus.setTextColor(0xFFFF5252);
                 return;
             }
 
@@ -149,7 +194,6 @@ public class AuthDialogManager {
                             }
                             String userId = user != null ? user.optString("id") : "USER_" + System.currentTimeMillis();
 
-                            // Store credentials locally in SharedPreferences
                             SharedPreferences sp = context.getSharedPreferences("LudoUserAuth", Context.MODE_PRIVATE);
                             sp.edit()
                                     .putBoolean("isLoggedIn", true)
@@ -166,13 +210,13 @@ public class AuthDialogManager {
                         } else {
                             String err = respObj.optString("error", "Authentication failed.");
                             tvStatus.setText(err);
-                            tvStatus.setTextColor(0xFFE3132B);
+                            tvStatus.setTextColor(0xFFFF5252);
                         }
                     });
                 } catch (Exception e) {
                     mainHandler.post(() -> {
                         tvStatus.setText("Error: " + e.getMessage());
-                        tvStatus.setTextColor(0xFFE3132B);
+                        tvStatus.setTextColor(0xFFFF5252);
                     });
                 }
             }).start();
